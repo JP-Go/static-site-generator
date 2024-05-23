@@ -113,16 +113,19 @@ split_nodes_link = create_nodes_splitter(extract_markdown_links, aggregate_split
 
 
 def text_to_text_nodes(text: str) -> List[TextNode]:
-    return split_nodes_delimiter(
-        split_nodes_delimiter(
-            split_nodes_delimiter(
-                split_nodes_image(split_nodes_link([TextNode(text, "text")])),
-                "**",
-                "bold",
-            ),
-            "*",
-            "italic",
-        ),
-        "`",
-        "code",
-    )
+    """
+    Takes a text string with inline markdown and splits it into a list o
+    TextNodes.
+    """
+
+    # The order of the splitting by delimiter matter since there are some
+    # overlaps between markers. There are cases when `*` and `**` are used
+    # on code so we parse it first. Them we parse bold and italics because
+    # The markers are similar.
+    nodes = [TextNode(text, "text")]
+    nodes = split_nodes_delimiter(nodes, "`", "code")
+    nodes = split_nodes_delimiter(nodes, "**", "bold")
+    nodes = split_nodes_delimiter(nodes, "*", "italic")
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
