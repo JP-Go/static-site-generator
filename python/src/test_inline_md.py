@@ -5,11 +5,12 @@ from inline_md import (
     extract_markdown_links,
     split_nodes_image,
     split_nodes_link,
+    text_to_text_nodes,
 )
 from textnode import TextNode
 
 
-class TestSplitNodes(unittest.TestCase):
+class TestSplitDelimiter(unittest.TestCase):
 
     def test_code_split(self):
         node = TextNode("This is text with a `code block` word", "text")
@@ -331,6 +332,32 @@ class TestSplitLinks(unittest.TestCase):
             ),
         ]
         self.assertEqual(expected, new_nodes)
+
+
+class TestSplitNodes(unittest.TestCase):
+    def test_with_full_text(self):
+        input = (
+            "This is **text** with an *italic* word and a `code block` and an "
+            "![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png)"
+            " and a [link](https://boot.dev)"
+        )
+        expected = [
+            TextNode("This is ", "text"),
+            TextNode("text", "bold"),
+            TextNode(" with an ", "text"),
+            TextNode("italic", "italic"),
+            TextNode(" word and a ", "text"),
+            TextNode("code block", "code"),
+            TextNode(" and an ", "text"),
+            TextNode(
+                "image",
+                "image",
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png",
+            ),
+            TextNode(" and a ", "text"),
+            TextNode("link", "link", "https://boot.dev"),
+        ]
+        self.assertEqual(text_to_text_nodes(input), expected)
 
 
 if __name__ == "__main__":

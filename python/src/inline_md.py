@@ -76,16 +76,6 @@ aggregate_split_images = create_aggregator(img_info_to_sep, img_info_to_text_nod
 aggregate_split_links = create_aggregator(link_info_to_sep, link_info_to_text_node)
 
 
-def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
-    pattern = re.compile(r"!\[(.+?)\]\((.+?)\)")
-    return re.findall(pattern, text)
-
-
-def extract_markdown_links(text: str) -> List[Tuple[str, str]]:
-    pattern = re.compile(r"(?<!\!)\[(.+?)\]\((.+?)\)")
-    return re.findall(pattern, text)
-
-
 def split_nodes_delimiter(
     old_nodes: List[TextNode], delimiter: str, text_type: TextType
 ):
@@ -106,7 +96,33 @@ def split_nodes_delimiter(
     return new_nodes
 
 
+def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
+    pattern = re.compile(r"!\[(.+?)\]\((.+?)\)")
+    return re.findall(pattern, text)
+
+
+def extract_markdown_links(text: str) -> List[Tuple[str, str]]:
+    pattern = re.compile(r"(?<!\!)\[(.+?)\]\((.+?)\)")
+    return re.findall(pattern, text)
+
+
 split_nodes_image = create_nodes_splitter(
     extract_markdown_images, aggregate_split_images
 )
 split_nodes_link = create_nodes_splitter(extract_markdown_links, aggregate_split_links)
+
+
+def text_to_text_nodes(text: str) -> List[TextNode]:
+    return split_nodes_delimiter(
+        split_nodes_delimiter(
+            split_nodes_delimiter(
+                split_nodes_image(split_nodes_link([TextNode(text, "text")])),
+                "**",
+                "bold",
+            ),
+            "*",
+            "italic",
+        ),
+        "`",
+        "code",
+    )
