@@ -6,7 +6,7 @@ from textnode import TextNode, TextType
 T = TypeVar("T")
 
 
-# INFO: This may be too much abstraction for only two cases of reuse. This
+# NOTE: This may be too much abstraction for only two cases of reuse. This
 # implementation is just showcasing a way to use function composition to
 # extract the list of nodes from a string and use recursion to aggregate them.
 def create_nodes_splitter(
@@ -32,7 +32,7 @@ def create_nodes_splitter(
     return split_nodes
 
 
-# INFO: Again, this may be too much abstraction for little reuse. This
+# NOTE: Again, this may be too much abstraction for little reuse. This
 # implementation is just showcasing a way to use function composition
 # and recursion
 def create_aggregator(
