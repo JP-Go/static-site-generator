@@ -6,7 +6,7 @@ In contrast, the ParentNode is a node that has at least one HTMLNode as child.
 A ParentNode may have one or more instances of ParentNode as children.
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, Optional, Sequence
 
 
 class HTMLNode:
@@ -40,7 +40,7 @@ class HTMLNode:
         self,
         tag: Optional[str] = None,
         value: Optional[str] = None,
-        children: Optional[List["HTMLNode"]] = None,
+        children: Optional[Sequence["HTMLNode"]] = None,
         props: Optional[Dict[str, str]] = None,
     ):
         self.tag = tag
@@ -104,7 +104,7 @@ class LeafNode(HTMLNode):
         props: Optional[Dict[str, str]] = None,
     ):
 
-        super().__init__(tag=tag, value=value, props=props)
+        super().__init__(tag=tag, value=value, props=props, children=None)
 
     def to_html(self) -> str:
         """Returns the html representation of the node. It will fail if the
@@ -127,6 +127,9 @@ class LeafNode(HTMLNode):
             return self.value
         else:
             return f"<{self.tag}{' '+self.props_to_html() if self.props is not None else ''}>{self.value}</{self.tag}>"
+
+    def __repr__(self) -> str:
+        return f"LeafNode({self.tag}, {self.value}, {self.children}, {self.props})"
 
 
 class ParentNode(HTMLNode):
@@ -152,7 +155,7 @@ class ParentNode(HTMLNode):
     def __init__(
         self,
         tag: Optional[str] = None,
-        children: Optional[List[HTMLNode]] = None,
+        children: Optional[Sequence[HTMLNode]] = None,
         props: Optional[Dict[str, str]] = None,
     ):
         super().__init__(tag=tag, children=children, props=props, value=None)
@@ -173,13 +176,18 @@ class ParentNode(HTMLNode):
         """
         if self.tag is None:
             raise ValueError("Parent node must have a tag")
-        if self.children is None or len(self.children) == 0:
+        if self.children is None:
             raise ValueError("Parent node must have at least one child")
 
         inner_html = ""
         for child in self.children:
+            if child.children is not None and len(child.children) == 0:
+                continue
             inner_html += child.to_html()
         return (
             f"<{self.tag}{' '+self.props_to_html() if self.props is not None else ''}>{inner_html}"
             f"</{self.tag}>"
         )
+
+    def __repr__(self) -> str:
+        return f"ParentNode({self.tag}, {self.value}, {self.children}, {self.props})"

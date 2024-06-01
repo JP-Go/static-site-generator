@@ -100,12 +100,6 @@ class TestParentNode(unittest.TestCase):
         parent = ParentNode(None, [LeafNode("i", "italic")])
         self.assertRaisesRegex(ValueError, "must have a tag", lambda: parent.to_html())
 
-    def test_raises_if_no_children_empty_list(self):
-        parent = ParentNode("p", [])
-        self.assertRaisesRegex(
-            ValueError, "must have at least one child", lambda: parent.to_html()
-        )
-
     def test_raises_if_no_children_no_list(self):
         parent = ParentNode(
             "p",
