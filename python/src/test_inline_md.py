@@ -1,10 +1,10 @@
 import unittest
 from inline_md import (
-    split_nodes_delimiter,
-    extract_markdown_images,
-    extract_markdown_links,
-    split_nodes_image,
-    split_nodes_link,
+    _split_nodes_delimiter,
+    _extract_markdown_images,
+    _extract_markdown_links,
+    _split_nodes_image,
+    _split_nodes_link,
     text_to_text_nodes,
 )
 from textnode import TextNode
@@ -14,7 +14,7 @@ class TestSplitDelimiter(unittest.TestCase):
 
     def test_code_split(self):
         node = TextNode("This is text with a `code block` word", "text")
-        new_nodes = split_nodes_delimiter([node], "`", "code")
+        new_nodes = _split_nodes_delimiter([node], "`", "code")
         result = [
             TextNode("This is text with a ", "text"),
             TextNode("code block", "code"),
@@ -24,7 +24,7 @@ class TestSplitDelimiter(unittest.TestCase):
 
     def test_bold_split(self):
         node = TextNode("This is text with a **bold block** word", "text")
-        new_nodes = split_nodes_delimiter([node], "**", "bold")
+        new_nodes = _split_nodes_delimiter([node], "**", "bold")
         result = [
             TextNode("This is text with a ", "text"),
             TextNode("bold block", "bold"),
@@ -34,7 +34,7 @@ class TestSplitDelimiter(unittest.TestCase):
 
     def test_italic_split(self):
         node = TextNode("This is text with a *italic block* word", "text")
-        new_nodes = split_nodes_delimiter([node], "*", "italic")
+        new_nodes = _split_nodes_delimiter([node], "*", "italic")
         result = [
             TextNode("This is text with a ", "text"),
             TextNode("italic block", "italic"),
@@ -47,7 +47,7 @@ class TestSplitDelimiter(unittest.TestCase):
             "This is text with a *italic block* word. And another one here: *This one* right",
             "text",
         )
-        new_nodes = split_nodes_delimiter([node], "*", "italic")
+        new_nodes = _split_nodes_delimiter([node], "*", "italic")
         result = [
             TextNode("This is text with a ", "text"),
             TextNode("italic block", "italic"),
@@ -62,8 +62,8 @@ class TestSplitDelimiter(unittest.TestCase):
             "This is text with a *italic block* word. And this one is bolded **This one**",
             "text",
         )
-        new_nodes = split_nodes_delimiter([node], "**", "bold")
-        new_nodes = split_nodes_delimiter([*new_nodes], "*", "italic")
+        new_nodes = _split_nodes_delimiter([node], "**", "bold")
+        new_nodes = _split_nodes_delimiter([*new_nodes], "*", "italic")
         result = [
             TextNode("This is text with a ", "text"),
             TextNode("italic block", "italic"),
@@ -79,7 +79,7 @@ class TestSplitDelimiter(unittest.TestCase):
         self.assertRaisesRegex(
             ValueError,
             "Invalid markdown syntax. Unclosed formatting delimiter",
-            lambda: split_nodes_delimiter([node], "`", "code"),
+            lambda: _split_nodes_delimiter([node], "`", "code"),
         )
 
 
@@ -87,7 +87,7 @@ class TestExtractImages(unittest.TestCase):
     def test_extracts_one_image(self):
         input = "Some image here: ![image](https://here.com)"
         expected = [("image", "https://here.com")]
-        self.assertEqual(extract_markdown_images(input), expected)
+        self.assertEqual(_extract_markdown_images(input), expected)
 
     def test_extracts_more_than_one_image(self):
         input = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
@@ -101,26 +101,26 @@ class TestExtractImages(unittest.TestCase):
                 "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png",
             ),
         ]
-        self.assertEqual(extract_markdown_images(input), expected)
+        self.assertEqual(_extract_markdown_images(input), expected)
 
     def test_extracts_no_image(self):
         input = "There is no image in this"
         expected = []
-        self.assertEqual(extract_markdown_images(input), expected)
+        self.assertEqual(_extract_markdown_images(input), expected)
 
     def test_does_not_match_links(self):
         input = (
             "There is no image in this but there is a link [here](https://google.com)"
         )
         expected = []
-        self.assertEqual(extract_markdown_images(input), expected)
+        self.assertEqual(_extract_markdown_images(input), expected)
 
 
 class TestExtractLinks(unittest.TestCase):
     def test_extracts_one_link(self):
         input = "Some link here: [link](https://here.com)"
         expected = [("link", "https://here.com")]
-        self.assertEqual(extract_markdown_links(input), expected)
+        self.assertEqual(_extract_markdown_links(input), expected)
 
     def test_extracts_more_than_one_link(self):
         input = "This is text with an [link](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and [another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
@@ -134,17 +134,17 @@ class TestExtractLinks(unittest.TestCase):
                 "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png",
             ),
         ]
-        self.assertEqual(extract_markdown_links(input), expected)
+        self.assertEqual(_extract_markdown_links(input), expected)
 
     def test_extracts_no_link(self):
         input = "There is no link in this"
         expected = []
-        self.assertEqual(extract_markdown_links(input), expected)
+        self.assertEqual(_extract_markdown_links(input), expected)
 
     def test_does_not_extract_images(self):
         input = "There is no link in this but theres an image ![here](https://some-image-here)"
         expected = []
-        self.assertEqual(extract_markdown_links(input), expected)
+        self.assertEqual(_extract_markdown_links(input), expected)
 
 
 class TestSplitImages(unittest.TestCase):
@@ -154,7 +154,7 @@ class TestSplitImages(unittest.TestCase):
             "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
             "text",
         )
-        new_nodes = split_nodes_image([node])
+        new_nodes = _split_nodes_image([node])
         expected = [
             TextNode("This is text with an ", "text"),
             TextNode(
@@ -179,7 +179,7 @@ class TestSplitImages(unittest.TestCase):
             ),
             "text",
         )
-        new_nodes = split_nodes_image([node])
+        new_nodes = _split_nodes_image([node])
         expected = [
             TextNode("This is text with an ", "text"),
             TextNode(
@@ -199,7 +199,7 @@ class TestSplitImages(unittest.TestCase):
             ),
             "text",
         )
-        new_nodes = split_nodes_image([node])
+        new_nodes = _split_nodes_image([node])
         expected = [
             TextNode("This is text with an ", "text"),
             TextNode(
@@ -218,7 +218,7 @@ class TestSplitImages(unittest.TestCase):
             ("This is text with no image" " and a link [link](https://google.com)"),
             "text",
         )
-        new_nodes = split_nodes_image([node])
+        new_nodes = _split_nodes_image([node])
         expected = [
             TextNode(
                 "This is text with no image and a link [link](https://google.com)",
@@ -232,7 +232,7 @@ class TestSplitImages(unittest.TestCase):
             ("This is text with no image and no links"),
             "text",
         )
-        new_nodes = split_nodes_image([node])
+        new_nodes = _split_nodes_image([node])
         expected = [
             TextNode(
                 "This is text with no image and no links",
@@ -248,7 +248,7 @@ class TestSplitLinks(unittest.TestCase):
             "This is text with an [link](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another [second link](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
             "text",
         )
-        new_nodes = split_nodes_link([node])
+        new_nodes = _split_nodes_link([node])
         expected = [
             TextNode("This is text with an ", "text"),
             TextNode(
@@ -273,7 +273,7 @@ class TestSplitLinks(unittest.TestCase):
             ),
             "text",
         )
-        new_nodes = split_nodes_link([node])
+        new_nodes = _split_nodes_link([node])
         expected = [
             TextNode("This is text with an ", "text"),
             TextNode(
@@ -293,7 +293,7 @@ class TestSplitLinks(unittest.TestCase):
             ),
             "text",
         )
-        new_nodes = split_nodes_link([node])
+        new_nodes = _split_nodes_link([node])
         expected = [
             TextNode("This is text with an ", "text"),
             TextNode(
@@ -310,7 +310,7 @@ class TestSplitLinks(unittest.TestCase):
             ("This is text with no link and an image ![like this](https://google.com)"),
             "text",
         )
-        new_nodes = split_nodes_link([node])
+        new_nodes = _split_nodes_link([node])
         expected = [
             TextNode(
                 "This is text with no link and an image ![like this](https://google.com)",
@@ -324,7 +324,7 @@ class TestSplitLinks(unittest.TestCase):
             "This is text with no image and no links",
             "text",
         )
-        new_nodes = split_nodes_link([node])
+        new_nodes = _split_nodes_link([node])
         expected = [
             TextNode(
                 "This is text with no image and no links",
